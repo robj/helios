@@ -70,8 +70,12 @@ class Helios::Backend::PushNotification < Sinatra::Base
 
     alias_value = params[:alias]
     if alias_value
-      puts "Alias: #{alias_value}"
-      tokens = Array[::Rack::PushNotification::Device.find(alias: alias_value)]
+      device = ::Rack::PushNotification::Device.find(alias: alias_value)
+      if device
+        tokens = Array[device.token]
+      else
+        tokens = Array.new
+      end
     else
       tokens = params[:tokens] || ::Rack::PushNotification::Device.all.collect(&:token)
     end
