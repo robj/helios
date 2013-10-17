@@ -66,8 +66,14 @@ class Helios::Backend::PushNotification < Sinatra::Base
 
     param :payload, String, empty: false
     param :tokens, Array, empty: false
+    param :alias, String, empty: false
 
-    tokens = params[:tokens] || ::Rack::PushNotification::Device.all.collect(&:token)
+    alias_value = params[:alias]
+    if alias_value
+      tokens = Array[::Rack::PushNotification::Device.find(alias: alias_value)]
+    else
+      tokens = params[:tokens] || ::Rack::PushNotification::Device.all.collect(&:token)
+    end
 
     options = JSON.parse(params[:payload])
     options[:alert] = options["aps"]["alert"]
