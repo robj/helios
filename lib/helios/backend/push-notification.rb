@@ -70,12 +70,7 @@ class Helios::Backend::PushNotification < Sinatra::Base
 
     alias_value = params[:alias]
     if alias_value
-      device = ::Rack::PushNotification::Device.find(alias: alias_value)
-      if device
-        tokens = Array[device.token]
-      else
-        tokens = Array.new
-      end
+      tokens = ::Rack::PushNotification::Device.where(:alias => alias_value).collect(&:token)
     else
       tokens = params[:tokens] || ::Rack::PushNotification::Device.all.collect(&:token)
     end
@@ -87,7 +82,7 @@ class Helios::Backend::PushNotification < Sinatra::Base
     options.delete("aps")
 
     begin
-      notifications = tokens.collect{|token| puts "Token: #{token}"; Houston::Notification.new(options.update({device: token}))}
+      notifications = tokens.collect{|token| puts "Pushing to device token: #{token}"; Houston::Notification.new(options.update({device: token}))}
       client.push(*notifications)
 
       status 204
