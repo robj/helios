@@ -4,7 +4,7 @@ require "helios/version"
 
 Gem::Specification.new do |s|
   s.name        = "helios"
-  s.authors     = ["Mattt Thompson"]
+  s.authors     = ["Mattt Thompson", "C1 Labs"]
   s.email       = "mattt@heroku.com"
   s.license     = "MIT"
   s.homepage    = "http://helios.io"
