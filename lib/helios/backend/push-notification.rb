@@ -54,6 +54,49 @@ class Helios::Backend::PushNotification < Sinatra::Base
       status 404
     end
   end
+  
+  
+  put '/devices/:token' do
+
+
+      post_data = JSON.parse(request.env["rack.input"].read)
+      token = params[:token].strip.gsub(/[<\s>]/, '') if params[:token]
+
+      if record = ::Rack::PushNotification::Device.find(:token => token)
+
+
+        tag_string = "{"
+        tag_array = post_data["tags"]
+        tag_array.each_with_index do |e, i|
+          tag_string << e
+          tag_string << ', ' unless i == tag_array.count - 1
+        end
+        tag_string << "}"
+
+        post_data["tags"] = tag_string
+
+
+        record.update(post_data)
+        status 200
+        {device: record}.to_json
+      else
+        record ||= ::Rack::PushNotification::Device.new(params)
+
+        if record.save
+          status 201
+          {device: record}.to_json
+        else
+          status 400
+          {errors: record.errors}.to_json
+        end
+
+      end
+
+
+  end
+
+  
+
 
   head '/message' do
     status 503 and return unless client
